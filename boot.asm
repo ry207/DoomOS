@@ -43,6 +43,11 @@ space:
     mov bx, name
     jmp printname
 
+infobuff:
+    mov ah, 0x0e
+    mov bx, message
+    jmp info
+
 bgcolor:
     mov ah,00h      ; Set video mode
     mov al,03h      ; Mode 3 (Color text)
@@ -54,7 +59,7 @@ bgcolor:
     mov dh, 19h
     mov dl, 50h
     int 10h
-    jmp space
+    jmp infobuff
 
 
 
@@ -214,7 +219,7 @@ clearcom:
 newscreen:
     mov ax, 0x3
     int 10h
-    jmp space
+    jmp infobuff
 
 exit:
     jmp $
