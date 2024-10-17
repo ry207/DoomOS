@@ -40,8 +40,8 @@ space:
     mov al, 0AH
     int 0x10
     mov ah, 0x0e
-    mov bx, user
-    jmp printuser
+    mov bx, name
+    jmp printname
 
 bgcolor:
     mov ah,00h      ; Set video mode
@@ -56,29 +56,6 @@ bgcolor:
     int 10h
     jmp space
 
-
-printuser:
-    ;inc al          ;increment al (i = 65 i++)
-    ;cmp al, 90 + 1  ;compare whats in al (65/a) with 90/z
-    ;je exit         ;jump if equal to the exit label
-    ;int 0x10        ;interupt
-    ;jmp loop        ;go back to loop until the je is activated
-    mov al, [bx]    ;move bx (mov bx, name) to the al register
-    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
-    je bsat         ;if equal to 0 then go to the exit label
-    int 0x10        ;interrupt
-    inc bx          ;inx bx so the pos in the string increases
-    jmp printuser
-
-
-;prints the @ symbol between user and DoomOS
-bsat:
-    mov ah, 0x0e
-    mov al ,64
-    int 0x10
-    mov ah, 0x0e
-    mov bx, name
-    jmp printname
 
 
 
@@ -134,6 +111,7 @@ loop3:
 
     cmp al, 42      ;* key goes to title print
     je spacerbuff
+
 
     cmp al, 126
     je bgcolor
@@ -200,10 +178,23 @@ pt3buff:
 print_title3:
     mov al, [bx]    ;move bx (mov bx, name) to the al register
     cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
-    je space         ;if equal to 0 then go to the exit label
+    je pt4buff         ;if equal to 0 then go to the exit label
     int 0x10        ;interrupt
     inc bx          ;inx bx so the pos in the string increases
     jmp print_title3
+
+pt4buff:
+    mov ah, 0x0e
+    mov bx, doomos4
+    jmp print_title4
+
+print_title4:
+    mov al, [bx]    ;move bx (mov bx, name) to the al register
+    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
+    je space         ;if equal to 0 then go to the exit label
+    int 0x10        ;interrupt
+    inc bx          ;inx bx so the pos in the string increases
+    jmp print_title4
 
 
 clearcom:
@@ -238,16 +229,16 @@ clear_command: db "[-] clears the screen [~] changes background to blue [*] prin
 
 
 message: db "Type ? for a list of commands", 0
-name: db "DoomOS", 0
-user: db "User", 0
-
+name: db "User@DoomOS", 0
 
 ;doomos title
 
 spacertext: db "            ", ENDL, 0
 doomos1: db "============", ENDL, 0
 doomos2: db "|  DoomOS  |", ENDL, 0
-doomos3: db "============", 0
+doomos3: db "============", ENDL, 0
+
+doomos4: db "Welcome to DoomOS!", ENDL, 0
 
 times 510-($-$$) db 0
 db 0x55, 0xaa
