@@ -1,9 +1,17 @@
 Basic operating system with keyboard shortcut commands 
-to run the file there are instruction in the boot_instructions file
 
-As of the creation of this repo i have spent 7 days working on it and am happy with my progress
+To boot, in the DoomOS Dir, type:
+```
+nasm -f bin boot.asm -o boot.bin
+```
+then...
+```
+qemu-system-x86_64 boot.bin
+```
+And it should boot up!
 
-there is no bootloader or kernel, none of it is programmed in c, just assembly
+
+There is no bootloader or kernel, none of it is programmed in c, just assembly
 planning on adding a bootloader and all that at some point
 
-Thanks eprograms for the inspiration ly
+Thanks youtube:eprograms for the inspiration ly
