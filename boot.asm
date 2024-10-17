@@ -48,20 +48,18 @@ infobuff:
     mov bx, message
     jmp info
 
-bgcolor:
+bgcolor_blue:
     mov ah,00h      ; Set video mode
     mov al,03h      ; Mode 3 (Color text)
     int 10h
     mov ax, 0600h        ; AH=06(scroll up window), AL=00(entire window)
-    mov bh, 00010111b    ; left nibble for background (blue), right nibble for foreground (light gray)
+    mov bh, 02h    ; left nibble for background (blue), right nibble for foreground (light gray)
     mov cx, 0000h        ; CH=00(top), CL=00(left)
     ;mov dx, 1010h        ; DH=19(bottom), DL=50(right)
     mov dh, 19h
     mov dl, 50h
     int 10h
     jmp infobuff
-
-
 
 
 ;prints DoomOS
@@ -119,7 +117,7 @@ loop3:
 
 
     cmp al, 126
-    je bgcolor
+    je bgcolor_blue ;~ key changes bg color to blue
 
     mov ah, 0xE     ;display character
     int 10h
@@ -230,7 +228,7 @@ buffer:
 
 
 ;commands
-clear_command: db "[-] clears the screen [~] changes background to blue [*] prints the title page", 0
+clear_command: db "[-] clears the screen [~] changes text color to green [*] prints the title page", 0
 
 
 message: db "Type ? for a list of commands", 0
