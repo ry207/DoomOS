@@ -1,6 +1,7 @@
 org 0x7c00
 bits 16
 
+%define ENDL 0x0D, 0x0A
 
 mov ax, 0x3     ;clear scree
 int 10h         ;clear screen pt2
@@ -131,6 +132,9 @@ loop3:
     cmp al, 63      ;? keys shows commands
     je commands1
 
+    cmp al, 42      ;* key goes to title print
+    je spacerbuff
+
     cmp al, 126
     je bgcolor
 
@@ -149,6 +153,57 @@ commands1:
     jmp clearcom
 
 
+spacerbuff:
+    mov ah, 0x0e
+    mov bx, spacertext
+    jmp spacer
+
+spacer:
+    mov al, [bx]    ;move bx (mov bx, name) to the al register
+    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
+    je pt1buff         ;if equal to 0 then go to the exit label
+    int 0x10        ;interrupt
+    inc bx          ;inx bx so the pos in the string increases
+    jmp spacer
+
+pt1buff:
+    mov ah, 0x0e
+    mov bx, doomos1
+    jmp print_title1
+
+print_title1:
+    mov al, [bx]    ;move bx (mov bx, name) to the al register
+    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
+    je pt2buff         ;if equal to 0 then go to the exit label
+    int 0x10        ;interrupt
+    inc bx          ;inx bx so the pos in the string increases
+    jmp print_title1
+
+pt2buff:
+    mov ah, 0x0e
+    mov bx, doomos2
+    jmp print_title2
+
+print_title2:
+    mov al, [bx]    ;move bx (mov bx, name) to the al register
+    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
+    je pt3buff         ;if equal to 0 then go to the exit label
+    int 0x10        ;interrupt
+    inc bx          ;inx bx so the pos in the string increases
+    jmp print_title2
+
+pt3buff:
+    mov ah, 0x0e
+    mov bx, doomos3
+    jmp print_title3
+
+print_title3:
+    mov al, [bx]    ;move bx (mov bx, name) to the al register
+    cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
+    je space         ;if equal to 0 then go to the exit label
+    int 0x10        ;interrupt
+    inc bx          ;inx bx so the pos in the string increases
+    jmp print_title3
 
 
 clearcom:
@@ -179,11 +234,20 @@ buffer:
 
 
 ;commands
-clear_command: db "[-] clears the screen [~] changes background to blue", 0
+clear_command: db "[-] clears the screen [~] changes background to blue [*] prints the title page", 0
 
 
 message: db "Type ? for a list of commands", 0
 name: db "DoomOS", 0
 user: db "User", 0
+
+
+;doomos title
+
+spacertext: db "            ", ENDL, 0
+doomos1: db "============", ENDL, 0
+doomos2: db "|  DoomOS  |", ENDL, 0
+doomos3: db "============", 0
+
 times 510-($-$$) db 0
 db 0x55, 0xaa
