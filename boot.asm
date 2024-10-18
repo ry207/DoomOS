@@ -48,12 +48,12 @@ infobuff:
     mov bx, message
     jmp info
 
-bgcolor_blue:
+text_color_green:
     mov ah,00h      ; Set video mode
     mov al,03h      ; Mode 3 (Color text)
     int 10h
     mov ax, 0600h        ; AH=06(scroll up window), AL=00(entire window)
-    mov bh, 02h    ; left nibble for background (blue), right nibble for foreground (light gray)
+    mov bh, 47h    ; left nibble for background (blue), right nibble for foreground (light gray)
     mov cx, 0000h        ; CH=00(top), CL=00(left)
     ;mov dx, 1010h        ; DH=19(bottom), DL=50(right)
     mov dh, 19h
@@ -61,6 +61,19 @@ bgcolor_blue:
     int 10h
     jmp infobuff
 
+
+bgcolor_blue:
+    mov ah,00h      ; Set video mode
+    mov al,03h      ; Mode 3 (Color text)
+    int 10h
+    mov ax, 0600h        ; AH=06(scroll up window), AL=00(entire window)
+    mov bh, 17h    ; left nibble for background (blue), right nibble for foreground (light gray)
+    mov cx, 0000h        ; CH=00(top), CL=00(left)
+    ;mov dx, 1010h        ; DH=19(bottom), DL=50(right)
+    mov dh, 19h
+    mov dl, 50h
+    int 10h
+    jmp infobuff
 
 ;prints DoomOS
 printname:
@@ -117,7 +130,10 @@ loop3:
 
 
     cmp al, 126
-    je bgcolor_blue ;~ key changes bg color to blue
+    je text_color_green ;~ key changes bg color to blue
+
+    cmp al, 35
+    je bgcolor_blue
 
     mov ah, 0xE     ;display character
     int 10h
@@ -202,7 +218,7 @@ print_title4:
 
 clearcom:
     ;inc al          ;increment al (i = 65 i++)
-    ;cmp al, 90 + 1  ;compare whats in al (65/a) with 90/z
+    ;cmp al, 90 + 1  ;compare whats in al (65/a) with 90/zbgcolor_blue
     ;je exit         ;jump if equal to the exit label
     ;int 0x10        ;interupt
     ;jmp loop        ;go back to loop until the je is activated
@@ -228,7 +244,7 @@ buffer:
 
 
 ;commands
-clear_command: db "[-] clears the screen [~] changes text color to green [*] prints the title page", 0
+clear_command: db "  [-] clears the screen [~]&[#] changes bgcolors [*] prints the title page", 0
 
 
 message: db "Type ? for a list of commands", 0
@@ -236,7 +252,7 @@ name: db "User@DoomOS", 0
 
 ;doomos title
 
-spacertext: db "            ", ENDL, 0
+spacertext: db " ", ENDL, 0
 doomos1: db "============", ENDL, 0
 doomos2: db "|  DoomOS  |", ENDL, 0
 doomos3: db "============", ENDL, 0
