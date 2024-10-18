@@ -6,6 +6,8 @@ bits 16
 mov ax, 0x3     ;clear scree
 int 10h         ;clear screen pt2
 
+
+
 mov ah, 0x0e
 mov bx, message
 
@@ -23,16 +25,12 @@ info:
     inc bx          ;inx bx so the pos in the string increases
     jmp info
 
-mov  cx, 1      ; ReplicationCount=1
-mov  bx, 0024h  ; BH is DisplayPage=0, BL is ColorAttribute=24h (RedOnGreen)
-
-
-mov ah, 0x0e
-mov bx, name
 
 
 ;new line
 space:
+    pop bx
+    pop ax
     mov ah, 0x0e
     mov al, 13
     int 0x10
@@ -53,7 +51,7 @@ text_color_green:
     mov al,03h      ; Mode 3 (Color text)
     int 10h
     mov ax, 0600h        ; AH=06(scroll up window), AL=00(entire window)
-    mov bh, 47h    ; left nibble for background (blue), right nibble for foreground (light gray)
+    mov bh, 20h    ; left nibble for background (blue), right nibble for foreground (light gray)
     mov cx, 0000h        ; CH=00(top), CL=00(left)
     ;mov dx, 1010h        ; DH=19(bottom), DL=50(right)
     mov dh, 19h
@@ -96,18 +94,10 @@ arrow:
     mov al, 45
     int 0x10
     mov ah, 0x0e
-    mov al, 45
-    int 0x10
-    mov ah, 0x0e
-    mov al, 45
-    int 0x10
-    mov ah, 0x0e
-    mov al, 45
-    int 0x10
-    mov ah, 0x0e
     mov al, '>'
     int 0x10
     jmp loop3
+
 
 
 ;loop for getting input
@@ -134,6 +124,13 @@ loop3:
 
     cmp al, 35
     je bgcolor_blue
+
+
+    cmp al, 27
+    je exit
+
+    cmp al, 8
+    je delete
 
     mov ah, 0xE     ;display character
     int 10h
@@ -217,11 +214,6 @@ print_title4:
 
 
 clearcom:
-    ;inc al          ;increment al (i = 65 i++)
-    ;cmp al, 90 + 1  ;compare whats in al (65/a) with 90/zbgcolor_blue
-    ;je exit         ;jump if equal to the exit label
-    ;int 0x10        ;interupt
-    ;jmp loop        ;go back to loop until the je is activated
     mov al, [bx]    ;move bx (mov bx, name) to the al register
     cmp al, 0       ;comapre al to 0, if zero that means its a null character and string is over
     je space         ;if equal to 0 then go to the exit label
@@ -235,8 +227,27 @@ newscreen:
     int 10h
     jmp infobuff
 
+delete:
+    mov ah, 0x0e
+    mov al, 8
+    int 0x10
+    mov ah, 0x0e
+    mov al, 32
+    int 0x10
+    mov ah, 0x0e
+    mov al, 8
+    int 0x10
+    jmp loop3
+
 exit:
-    jmp $
+    popa
+
+    pop di
+    pop dx
+    pop cx
+    pop bx
+    pop ax                             ; restore registers modified
+    ret
 
 buffer:
     times 10 db 0
@@ -244,20 +255,20 @@ buffer:
 
 
 ;commands
-clear_command: db "  [-] clears the screen [~]&[#] changes bgcolors [*] prints the title page", 0
+clear_command: db "[-] clears the screen [~]&[#] changes bgcolors [*] prints the title", 0
 
 
-message: db "Type ? for a list of commands", 0
-name: db "User@DoomOS", 0
+message: db "Type ? for a list of commands",ENDL, 0
+name: db "DoomOS", 0
 
 ;doomos title
 
 spacertext: db " ", ENDL, 0
-doomos1: db "============", ENDL, 0
-doomos2: db "|  DoomOS  |", ENDL, 0
-doomos3: db "============", ENDL, 0
+doomos1: db "==========", ENDL, 0
+doomos2: db "| DoomOS |", ENDL, 0
+doomos3: db "==========", ENDL, 0
 
 doomos4: db "Welcome to DoomOS!", ENDL, 0
 
 times 510-($-$$) db 0
-db 0x55, 0xaa
+dw 0AA55h
